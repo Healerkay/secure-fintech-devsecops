@@ -9,6 +9,7 @@ on:
 env:
   IMAGE_NAME: secure-fintech-devsecops
   USERNAME: healerkay
+  IMAGE_TAG:  ${{ github.sha }} 
 
 jobs:
   sonarcloud:
@@ -19,11 +20,11 @@ jobs:
         with:
           fetch-depth: 0  
 
-      - name: Generate random tag number
-        id: version_step
-        run: |
-          echo "VERSION=${RANDOM}" >> $GITHUB_ENV 
-          echo "::set-output name=VERSION::${RANDOM}"
+    #   - name: Generate random tag number
+    #     id: version_step
+    #     run: |
+    #       echo "VERSION=${RANDOM}" >> $GITHUB_ENV 
+    #       echo "::set-output name=VERSION::${RANDOM}"
 
       - name: Set up Python
         uses: actions/setup-python@v4
@@ -89,13 +90,25 @@ jobs:
 
       - name: Build Docker image
         run: |
-          docker build -t $USERNAME/$IMAGE_NAME:${{ env.VERSION }} .
-          docker push $USERNAME/$IMAGE_NAME:${{ env.VERSION }}
+          docker build -t $USERNAME/$IMAGE_NAME:$IMAGE_TAG .
+
+      - name: Test Docker container
+        run: |
+          docker run -d --name test-container -p 8000:8000 $USERNAME/$IMAGE_NAME:$IMAGE_TAG 
+          sleep 10
+          curl -f http://localhost:8000/ || exit 1
+          docker stop test-container
+          docker rm test-container
+
+      - name: Push Docker image
+        run: |
+
+          docker push $USERNAME/$IMAGE_NAME:$IMAGE_TAG 
 
       - name: Run Trivy vulnerability scanner
         uses: aquasecurity/trivy-action@master
         with:
-          image-ref: '$USERNAME/$IMAGE_NAME:${{ env.VERSION }}'
+          image-ref: '$USERNAME/$IMAGE_NAME:$IMAGE_TAG '
           format: 'sarif'
           output: 'trivy-results.sarif'
 
@@ -104,14 +117,6 @@ jobs:
         if: always()
         with:
           sarif_file: 'trivy-results.sarif'
-
-      - name: Test Docker container
-        run: |
-          docker run -d --name test-container -p 8000:8000 $USERNAME/$IMAGE_NAME:${{ env.VERSION }}
-          sleep 10
-          curl -f http://localhost:8000/ || exit 1
-          docker stop test-container
-          docker rm test-container
 
   deploy:
     runs-on: ubuntu-latest
