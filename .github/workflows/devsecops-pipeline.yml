@@ -7,8 +7,8 @@ on:
     branches: [ "main" ]
 
 env:
-  REGISTRY: ghcr.io
-  IMAGE_NAME: fintech-app
+  IMAGE_NAME: secure-fintech-devsecops
+  USERNAME: healerkay
 
 jobs:
   sonarcloud:
@@ -17,7 +17,13 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
         with:
-          fetch-depth: 0  # Shallow clones should be disabled for better analysis
+          fetch-depth: 0  
+
+      - name: Generate random tag number
+        id: version_step
+        run: |
+          echo "VERSION=${RANDOM}" >> $GITHUB_ENV 
+          echo "::set-output name=VERSION::${RANDOM}"
 
       - name: Set up Python
         uses: actions/setup-python@v4
@@ -37,7 +43,7 @@ jobs:
       - name: SonarCloud Scan
         uses: SonarSource/sonarcloud-github-action@master
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.PAT_TOKEN }}
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
 
       - name: Run Bandit Security Scan
@@ -74,15 +80,22 @@ jobs:
         run: |
           pytest --cov=app --cov-report=xml --cov-report=html
 
+
+      - name: Logging into Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_PASSWORD }}
+
       - name: Build Docker image
         run: |
-          docker build -t ${{ env.IMAGE_NAME }}:${{ github.sha }} .
-          docker tag ${{ env.IMAGE_NAME }}:${{ github.sha }} ${{ env.IMAGE_NAME }}:latest
+          docker build -t $USERNAME/$IMAGE_NAME:${{ env.VERSION }} .
+          docker push $USERNAME/$IMAGE_NAME:${{ env.VERSION }}
 
       - name: Run Trivy vulnerability scanner
         uses: aquasecurity/trivy-action@master
         with:
-          image-ref: '${{ env.IMAGE_NAME }}:latest'
+          image-ref: '$USERNAME/$IMAGE_NAME:${{ env.VERSION }}'
           format: 'sarif'
           output: 'trivy-results.sarif'
 
@@ -94,7 +107,7 @@ jobs:
 
       - name: Test Docker container
         run: |
-          docker run -d --name test-container -p 8000:8000 ${{ env.IMAGE_NAME }}:latest
+          docker run -d --name test-container -p 8000:8000 $USERNAME/$IMAGE_NAME:${{ env.VERSION }}
           sleep 10
           curl -f http://localhost:8000/ || exit 1
           docker stop test-container
@@ -114,9 +127,9 @@ jobs:
         with:
           creds: ${{ secrets.AZURE_CREDENTIALS }}
 
-      - name: Get AKS credentials
+      - name: Connect AKS cluster
         run: |
-          az aks get-credentials --resource-group fintech-rg --name fintech-aks
+          az aks get-credentials --resource-group demo_froup --name demoAKS
 
       - name: Deploy to AKS
         run: |
