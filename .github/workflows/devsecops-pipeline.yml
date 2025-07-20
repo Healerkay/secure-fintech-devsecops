@@ -134,7 +134,7 @@ jobs:
 
       - name: Connect AKS cluster
         run: |
-          az aks get-credentials --resource-group demo_froup --name demoAKS
+          az aks get-credentials --resource-group demo_group --name demoAKS
 
 
       - name: "Install Helm"
