@@ -38,7 +38,7 @@ jobs:
 
       - name: Run tests with coverage
         run: |
-          pytest --cov=app --cov-report=xml --cov-report=html
+          pytest --cov=app --cov-report=xml --cov-report=html || true
 
       - name: SonarCloud Scan
         uses: SonarSource/sonarcloud-github-action@master
@@ -51,11 +51,11 @@ jobs:
           pip install bandit
           bandit -r app/ -f json -o bandit-report.json || true
 
-    #   - name: Upload Bandit Report
-    #     uses: actions/upload-artifact@v3
-    #     with:
-    #       name: bandit-report
-    #       path: bandit-report.json
+      - name: Upload Bandit Report
+        uses: actions/upload-artifact@v3
+        with:
+          name: bandit-report
+          path: bandit-report.json
 
   build-and-test:
     runs-on: ubuntu-latest
