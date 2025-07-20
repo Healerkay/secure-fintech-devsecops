@@ -112,11 +112,11 @@ jobs:
           format: 'sarif'
           output: 'trivy-results.sarif'
 
-      - name: Upload Trivy scan results
-        uses: github/codeql-action/upload-sarif@v2
-        if: always()
-        with:
-          sarif_file: 'trivy-results.sarif'
+    #   - name: Upload Trivy scan results
+    #     uses: github/codeql-action/upload-sarif@v2
+    #     if: always()
+    #     with:
+    #       sarif_file: 'trivy-results.sarif'
 
   deploy:
     runs-on: ubuntu-latest
@@ -136,7 +136,18 @@ jobs:
         run: |
           az aks get-credentials --resource-group demo_froup --name demoAKS
 
-      - name: Deploy to AKS
+
+      - name: "Install Helm"
+        uses: azure/setup-helm@v4.2.0
+        id: "install-helm"
+
+
+      - name: "Deploy Application to ArgoCD"
         run: |
-          kubectl apply -f k8s/
-          kubectl rollout status deployment/fintech-app
+           helm upgrade --install secure-fintech ./helm/secure-fintech --set image.tag=${{ env.VERSION_NUMBER}} --set replicaCount=2 
+
+
+
+
+
+
