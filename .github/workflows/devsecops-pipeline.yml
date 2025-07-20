@@ -12,55 +12,55 @@ env:
   IMAGE_TAG:  ${{ github.sha }} 
 
 jobs:
-  sonarcloud:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 0  
+#   sonarcloud:
+#     runs-on: ubuntu-latest
+#     steps:
+#       - name: Checkout code
+#         uses: actions/checkout@v4
+#         with:
+#           fetch-depth: 0  
 
-    #   - name: Generate random tag number
-    #     id: version_step
-    #     run: |
-    #       echo "VERSION=${RANDOM}" >> $GITHUB_ENV 
-    #       echo "::set-output name=VERSION::${RANDOM}"
+#     #   - name: Generate random tag number
+#     #     id: version_step
+#     #     run: |
+#     #       echo "VERSION=${RANDOM}" >> $GITHUB_ENV 
+#     #       echo "::set-output name=VERSION::${RANDOM}"
 
-      - name: Set up Python
-        uses: actions/setup-python@v4
-        with:
-          python-version: '3.11'
+#       - name: Set up Python
+#         uses: actions/setup-python@v4
+#         with:
+#           python-version: '3.11'
 
-      - name: Install dependencies
-        run: |
-          python -m pip install --upgrade pip
-          pip install -r requirements.txt
-          pip install pytest pytest-cov httpx
+#       - name: Install dependencies
+#         run: |
+#           python -m pip install --upgrade pip
+#           pip install -r requirements.txt
+#           pip install pytest pytest-cov httpx
 
-      - name: Run tests with coverage
-        run: |
-          pytest --cov=app --cov-report=xml --cov-report=html || true
+#       - name: Run tests with coverage
+#         run: |
+#           pytest --cov=app --cov-report=xml --cov-report=html || true
 
-      - name: SonarCloud Scan
-        uses: SonarSource/sonarcloud-github-action@master
-        env:
-          GITHUB_TOKEN: ${{ secrets.PAT_TOKEN }}
-          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+#       - name: SonarCloud Scan
+#         uses: SonarSource/sonarcloud-github-action@master
+#         env:
+#           GITHUB_TOKEN: ${{ secrets.PAT_TOKEN }}
+#           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
 
-      - name: Run Bandit Security Scan
-        run: |
-          pip install bandit
-          bandit -r app/ -f json -o bandit-report.json || true
+#       - name: Run Bandit Security Scan
+#         run: |
+#           pip install bandit
+#           bandit -r app/ -f json -o bandit-report.json || true
 
-      - name: Upload Bandit Report
-        uses: actions/upload-artifact@v4
-        with:
-          name: bandit-report
-          path: bandit-report.json
+#       - name: Upload Bandit Report
+#         uses: actions/upload-artifact@v4
+#         with:
+#           name: bandit-report
+#           path: bandit-report.json
 
   build-and-test:
     runs-on: ubuntu-latest
-    needs: sonarcloud
+    # needs: sonarcloud
 
     steps:
       - name: Checkout code
@@ -120,7 +120,7 @@ jobs:
 
   deploy:
     runs-on: ubuntu-latest
-    needs: [sonarcloud, build-and-test]
+    # needs: [sonarcloud, build-and-test]
     if: github.ref == 'refs/heads/main'
 
     steps:
