@@ -1,0 +1,9 @@
+fastapi==0.95.2
+uvicorn[standard]==0.22.0
+SQLAlchemy>=2.0.22,<3.0.0
+python-dotenv==1.0.0
+psycopg[binary]
+
+# only if you ever use MySQL instead of Postgres
+# mysqlclient==2.1.1
+
