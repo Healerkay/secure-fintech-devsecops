@@ -16,7 +16,7 @@ spec:
     spec:
       containers:
       - name: fintech
-        image: healerkay/secure-fintech-devsecops:latest
+        image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
         ports:
         - containerPort: 8000
         env:
