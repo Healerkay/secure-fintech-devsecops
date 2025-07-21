@@ -144,7 +144,7 @@ jobs:
 
       - name: "Deploy Application to ArgoCD"
         run: |
-           helm upgrade --install secure-fintech ./helm/secure-fintech --set image.tag=$IMAGE_TAG --set replicaCount=2 
+           helm upgrade --install secure-fintech ./helm/secure-fintech --set image.tag=$IMAGE_TAG --set replicaCount=3 
 
 
 

@@ -6,7 +6,7 @@ from typing import List
 import hashlib
 import os
 
-app = FastAPI(title="FinTech API", version="1.0.0")
+app = FastAPI(title="Healerkay FinTech API", version="1.0.0")
 
 # Create tables
 models.Base.metadata.create_all(bind=database.engine)
