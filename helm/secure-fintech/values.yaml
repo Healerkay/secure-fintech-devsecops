@@ -105,3 +105,15 @@ nodeSelector: {}
 tolerations: []
 
 affinity: {}
+
+
+kv:
+  enabled: true
+  name: healerkay-kv         
+  tenantId: "d2a30c69-cac2-43f8-997c-ead5502bd72c"  
+  uamiClientId: "fb634691-f884-4ec1-9ca6-c1f5a8a59e6d"  
+  secrets:
+    - name: ai-connection   
+  syncK8sSecret: true
+  k8sSecretName: ai-connection-secret  
+

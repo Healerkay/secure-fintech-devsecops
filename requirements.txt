@@ -6,7 +6,8 @@ psycopg[binary]
 
 # only if you ever use MySQL instead of Postgres
 # mysqlclient==2.1.1
-
+azure-monitor-opentelemetry>=1,<2
+opentelemetry-instrumentation-fastapi>=0.46b0 
 
 
 

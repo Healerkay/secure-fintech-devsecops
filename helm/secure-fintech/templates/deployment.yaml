@@ -14,14 +14,31 @@ spec:
       labels:
         app: fintech
     spec:
+
+      volumes:
+      - name: kv-secrets
+        csi:
+          driver: secrets-store.csi.k8s.io
+          readOnly: true
+          volumeAttributes:
+            secretProviderClass: {{ include "secure-fintech.fullname" . }}-kv
       containers:
       - name: fintech
         image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+        volumeMounts:
+        - name: kv-secrets
+          mountPath: /mnt/kv
+          readOnly: true
         ports:
         - containerPort: 8000
         env:
         - name: DATABASE_URL
           value: "sqlite:///./fintech.db"
+        - name: APPLICATIONINSIGHTS_CONNECTION_STRING
+          valueFrom:
+           secretKeyRef:
+            name: {{ .Values.kv.k8sSecretName }}
+            key: ai-connection 
         resources:
           requests:
             memory: "128Mi"
