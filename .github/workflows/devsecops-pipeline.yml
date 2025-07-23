@@ -60,7 +60,7 @@ jobs:
 
   Build-and-Test:
     runs-on: ubuntu-latest
-    needs: sonarcloud
+    needs: Code-Analysis
 
     steps:
       - name: Checkout code
@@ -120,7 +120,7 @@ jobs:
 
   Deploy:
     runs-on: ubuntu-latest
-    needs: [sonarcloud, build-and-test]
+    needs: [Code-Analysis, Build-and-Test]
     if: github.ref == 'refs/heads/main'
 
     steps:
