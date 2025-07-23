@@ -136,3 +136,7 @@ def get_user_transactions(user_id: int, db: Session = Depends(database.get_db)):
 
 # Utility for when tracer is None (local/no AI)
 from contextlib import nullcontext  # at bottom to avoid circular import error
+
+
+
+
